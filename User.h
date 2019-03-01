@@ -23,8 +23,8 @@
 
 const uchar Ver_info[8]=
 {
-    //软件版本  423 V1.5 [3432332056312e34]
-    0x34,0x32,0x33,0x20,0x56,0x31,0x2e,0x35
+    //软件版本  423 V1.6 [3432332056312e34]
+    0x34,0x32,0x33,0x20,0x56,0x31,0x2e,0x36
 };
 
 
@@ -75,8 +75,7 @@ const uchar Ver_info[8]=
     #define F_RC_SMS_ing                    uF6.tFlg.Flg3
     #define F_TX_SMS_ing                    uF6.tFlg.Flg4
     #define F_TX_SMS_start                  uF6.tFlg.Flg5
-    #define F_wmq_selected_value_rechk      uF6.tFlg.Flg6
-    #define F_wmq_selected_value_rechk_ok   uF6.tFlg.Flg7
+    #define F_sms_dsp                       uF6.tFlg.Flg6
 
 /*----- UFlag3------------------*/
     #define UFlag3                  uF7.Flg
@@ -86,7 +85,7 @@ const uchar Ver_info[8]=
     #define F_cup_down_ok           uF7.tFlg.Flg4
     #define F_First_into_Setmodel   uF7.tFlg.Flg5
     #define F_First_out_Setmodel    uF7.tFlg.Flg6
-
+    #define F_channel_clear_ing     uF7.tFlg.Flg7
 
 
 

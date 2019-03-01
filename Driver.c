@@ -28,7 +28,7 @@
 uchar Supply_water(void)
 {
     uchar b;
-    b =((F_key9_down ==1) && (F_set_ing==0) && (Offer_Step <2) && (F_Err_water ==0) && (Current_temperature >=60))?1:0;
+    b =((F_key9_down ==1) && (F_set_ing==0) && (Offer_Step <2) && (F_Err_water ==0) && (Current_temperature >=70))?1:0;
     return b;
 }
 
@@ -100,9 +100,9 @@ uchar Supply_water(void)
 //      P_rly12 =(F_rly12?1:0);
 //      P_rly13 =(F_rly13?1:0);
 //      P_rly14 =(F_rly14?1:0);
-        P_rly8  =F_rly8 || Supply_water();
+        P_rly8  =F_rly8;
         P_rly9  =F_rly9;
-        P_rly10 =F_rly10;
+        P_rly10 =F_rly10 || Supply_water();
         P_rly11 =F_rly11 || Supply_water();
         P_rly12 =F_rly12;
         P_rly13 =F_rly13;
@@ -191,6 +191,50 @@ uchar Supply_water(void)
 
 /******************************************************************************/
 
+uint  Channel_Clear_timer =0;
+
+void Channel_Clear(void)
+{
+    if(F_channel_clear_ing)
+    {
+        Channel_Clear_timer++;
+        switch (Channel_Clear_timer/(5000/T_Task_Freshe_Hardware))
+        {
+        case 0:
+            F_rly11 =1;
+            F_rly8 =1;
+            F_rly5 =1;
+            break;
+        case 1:
+            F_rly8 =0;
+            F_rly5 =0;
+            F_rly11 =1;
+            F_rly9 =1;
+            F_rly6 =1;
+            break;
+        case 2:
+            F_rly9 =0;
+            F_rly6 =0;
+            F_rly11 =1;
+            F_rly10 =1;
+            F_rly7 =1;
+            break;
+        case 3:
+            F_rly11 =0;
+            F_rly10 =0;
+            F_rly7 =0;
+            Channel_Clear_timer =0;
+            F_channel_clear_ing =0;
+            F_sms_dsp =0;
+            F_Status_change =1;
+            sms_host_maintain =0;
+            break;
+        default:break;
+        }
+    }
+}
+
+/******************************************************************************/
 
     uint  Cup_motor_on_timer =0;
     uchar Cup_flag_away_cnt =0;
@@ -240,6 +284,9 @@ uchar Supply_water(void)
                 {
                     F_cup_down_ing =0;
                     F_cup_down_ok  =1;
+                    F_sms_dsp =0;
+                    F_Status_change =1;
+                    sms_host_maintain =0;
                 }
                 else Cup_motor_off_dly++;
             }
@@ -248,6 +295,9 @@ uchar Supply_water(void)
             {
                 F_cup_down_ing =0;
                 F_cup_down_ok  =0;
+                F_sms_dsp =0;
+                F_Status_change =1;
+                sms_host_maintain =0;
             }
         }
         else
@@ -321,11 +371,15 @@ uchar Supply_water(void)
         {
             if (R_Set_Step ==40) {R_Set_Step =20;break;}
             if (R_Set_Step >15) break;
-            else R_Set_Step =20;
-            R_Set_or_Dsp_Timer =0;
+            else {
+                R_Set_Step =20;
+                F_channel_clear_ing =1;
+                R_Set_or_Dsp_Timer =0;
+            }
         }break;
 
         case 3:
+        {
             if (( R_Set_Step <=15 ) || ( R_Set_Step ==40 ))
             {
                 R_Set_Step =30;
@@ -333,12 +387,10 @@ uchar Supply_water(void)
                 F_cup_down_ok =0;
                 F_Err_cup_down =0;
                 R_Set_or_Dsp_Timer =0;
-                break;
             }
-            else break;
+        }break;
         case 4:
         {
-
             if (R_Set_Step !=0) break;
 
             R_Set_or_Dsp_Timer2++;
@@ -640,8 +692,7 @@ uchar Supply_water(void)
             case 5:
             {
                 //F_rly12 =0;
-               if (R_Cup_AD <72)       // R_Cup_AD >= 0.7V ( 二极管压降 ) 取0.35V  1024*0.35/5=71.68
-               //if (R_Cup_AD > 205)       //
+                if (R_Cup_AD > 205)       //
                 {
                     F_rly13 =1;
                 }
@@ -724,49 +775,20 @@ uchar Supply_water(void)
 
         }break;
 
-
         case 20:        // ->Set -> Key2  自动清洗
         {
-            R_Set_or_Dsp_Timer++;
             F_set_key_2_3_17 =1;
 
             R_LedBuf[1].uDig= code_3h;
             R_LedBuf[2].uDig= code_3h;
             R_LedBuf[3].uDig= code_3h;
 
-            switch (R_Set_or_Dsp_Timer/(5000/T_Task_Disp_Status))
+            if (!F_channel_clear_ing)
             {
-            case 0:
-                F_rly11 =1;
-                F_rly8 =1;
-                F_rly5 =1;
-                break;
-            case 1:
-                //F_rly8 =0;
-                //F_rly5 =0;
-                F_rly11 =1;
-                F_rly9 =1;
-                F_rly6 =1;
-                break;
-            case 2:
-                //F_rly9 =0;
-                //F_rly6 =0;
-                F_rly11 =1;
-                F_rly10 =1;
-                F_rly7 =1;
-                break;
-            case 3:
-                //F_rly11 =0;
-                //F_rly10 =0;
-                //F_rly7 =0;
                 R_Set_Step =0;
                 F_set_key_2_3_17 =0;
                 alm_set(2,0,5,10);
-                break;
-            default:break;
-
             }
-
         }break;
 
         case 30:        // ->Set -> Key3  落杯测试
@@ -998,7 +1020,7 @@ uchar Supply_water(void)
         {
 
             R_LedBuf[0].tDig.b =1;
-            if(Current_temperature <60 )
+            if(Current_temperature <70 )
             {
                 R_LedBuf[0].tDig.b =F_blink_led;
             }
@@ -1010,7 +1032,7 @@ uchar Supply_water(void)
 
 
         /*-----LED3 加热状态------------------*/
-        if(( Current_temperature <60 ) && F_hot_ing)
+        if(( Current_temperature <70 ) && F_hot_ing)
         {
             R_LedBuf[0].tDig.c=1;
         }
@@ -1021,7 +1043,7 @@ uchar Supply_water(void)
 
         if (!F_sys_err && (KeyValue_nmdsp==0))
         {
-            if((Current_temperature < 60) && (Offer_Step < 2) && (Coins ==0))
+            if((Current_temperature < 70) && (Offer_Step < 2) && (Coins ==0))
             {
                 if (R_NTC_AD > 929) {
                     R_LedBuf[1].uDig=code_mid_line;
@@ -1118,6 +1140,7 @@ uchar Supply_water(void)
         UF_rly1 =0;
         UF_rly2 &=0b11100000;
 
+        F_channel_clear_ing =0;
         F_cup_down_ing =0;
         F_cup_down_ok =0;
         Change_Cup_Channel_Timer =0;
@@ -1169,6 +1192,19 @@ uchar Supply_water(void)
 
             get_set_key_value();
             run_set();
+        }
+        else if(F_sms_dsp)
+        {
+            if(F_channel_clear_ing){
+                R_LedBuf[1].uDig= code_3h;
+                R_LedBuf[2].uDig= code_3h;
+                R_LedBuf[3].uDig= code_3h;
+            }
+            if(F_cup_down_ing){
+                R_LedBuf[1].uDig = code_3h;
+                R_LedBuf[2].uDig = code_U;
+                R_LedBuf[3].uDig = code_3h;
+            }
         }
         else
         {

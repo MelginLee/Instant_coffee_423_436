@@ -145,6 +145,7 @@ void    Freshe_Rly(void);
 void    Init_Rly(void);
 void    Freshe_Buzzer(void);
 void    Cup_down(void);
+void    Channel_Clear(void);
 void    Setmodel_and_Dsp_Led_pro(void);
 void    Voice(uchar a);
 void    Inout_Setmodel_init(void);

@@ -49,8 +49,7 @@
     uint    ADC_buf =0;
     uint    R_Water_AD =0xffff;
     uint    R_NTC_AD =0;
-	uint	R_Cup_AD =0xffff;
-    //uint    R_Cup_AD =0;
+    uint    R_Cup_AD =0;
     uchar   ADC_channel =0;
     uchar   Current_temperature =25;
 

@@ -116,7 +116,7 @@ void Key_exe(void)
                     x =drinks_rly_list[KeyValue-1][3];      //取料盒号
                     y =drinks_rly_list[KeyValue-1][0];      //取料盒号
 
-                    if (Current_temperature <60 && y==11)
+                    if (Current_temperature <70 && y==11)
                     {
                         alm_set(3,0,3,6);
                     }
@@ -151,8 +151,7 @@ void Cup_chk(void)
 {
     if (R_Cup_Free & 0x01)
     {
-		if (R_Cup_AD >=72)		// R_Cup_AD >= 0.7V ( 二极管压降 ) 取0.35V  1024*0.35/5=71.68
-//        if (R_Cup_AD <=205)     // R_Cup_AD <= 1V  1024*1/5=204.8
+        if (R_Cup_AD <=205)     // R_Cup_AD <= 1V  1024*1/5=204.8
         {
             Change_Cup_Channel_Timer =0;
             F_rly13 =0;

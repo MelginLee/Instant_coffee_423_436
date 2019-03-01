@@ -198,6 +198,7 @@ void Task_Freshe_Hardware(void)
 
     Freshe_Buzzer();
     Cup_down();
+    Channel_Clear();
     //Supply_water();
 
     nP_373_E =0;    /* 使能373 如果硬件上能够满足 上电几秒钟让其=1 系统工作后让其=0  这个脚是可以空出来的 */
@@ -371,7 +372,7 @@ void    Water_chk(void)
 
 
 
-uint R_hot_timer =0;
+// uint R_hot_timer =0;
 
 void    Temperature_chk(void)
 {
@@ -417,16 +418,16 @@ void    Temperature_chk(void)
         F_hot_ing =0;
     }
 
-    if (P_hot) {
-        R_hot_timer++;
-        if (R_hot_timer > 20*1200) //20分
-        {
-            P_hot =0;
-            F_hot_ing =0;
-            F_Err_hot =1;
-        }
-    }
-    else R_hot_timer =0;
+    // if (P_hot) {
+    //     R_hot_timer++;
+    //     if (R_hot_timer > 20*1200) //20分
+    //     {
+    //         P_hot =0;
+    //         F_hot_ing =0;
+    //         F_Err_hot =1;
+    //     }
+    // }
+    // else R_hot_timer =0;
 
 }
 
