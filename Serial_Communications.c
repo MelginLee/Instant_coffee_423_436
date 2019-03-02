@@ -259,9 +259,10 @@ void RC_SMS_data_exed_pro(void)
     }
     else if (( R_sms_buf[1]==0x85) && (R_sms_buf[2] ==0x02) && (R_sms_buf[3]==0) && (R_sms_buf[4]==0))           //扫描支付 出货指令
     {
-        if((Offer_Step <2) && (P_Set ==F_P_Set_init_bak))
+        if((!F_sys_err) && (Offer_Step <2) && (P_Set ==F_P_Set_init_bak) && (wmq_selected_temp !=0))
         {
             wmq_selected_value =wmq_selected_temp;
+            wmq_selected_temp =0;
         }
         else {
             T_sms_buf[1] =0x85;                 //应答扫描支付命令未执行
@@ -300,28 +301,37 @@ void RC_SMS_data_exed_pro(void)
     {
         if(R_sms_buf[3]==sms_host_maintain && (P_Set==F_P_Set_init_bak) && (Offer_Step <2)) {
 
-            if (sms_host_maintain ==0x02 && R_sms_buf[4]==0) {
+            if (sms_host_maintain ==0x02 && R_sms_buf[4]==0 && F_cup_down_ing ==0) {
                 F_channel_clear_ing =1; // 清洗
                 F_sms_dsp =1;
                 F_Status_change =1;
             }
-            if (sms_host_maintain ==0x03 && R_sms_buf[4]==0) {
+            else if (sms_host_maintain ==0x03 && R_sms_buf[4]==0 && F_channel_clear_ing ==0) {
                 F_cup_down_ing =1; // 落杯测试
                 F_sms_dsp =1;
                 F_Status_change =1;
             }
-            if (sms_host_maintain ==0x04 && R_sms_buf[4]==0) {
+            else if (sms_host_maintain ==0x04 && R_sms_buf[4]==0 && F_channel_clear_ing==0 && F_cup_down_ing ==0) {
                 // 恢复出厂设置 不清记杯数
                 RFS_data_write();
                 data_read();
                 alm_set(1,0,5,10);
             }
-            if (sms_host_maintain ==0x04 && R_sms_buf[4]==0x01) {
+            else if (sms_host_maintain ==0x04 && R_sms_buf[4]==1 && F_channel_clear_ing==0 && F_cup_down_ing ==0) {
                 // 恢复出厂设置 并清记杯数
                 Clear_eeprom();
                 RFS_data_write();
                 data_read();
                 alm_set(1,0,5,10);
+            }
+            else{
+                sms_host_maintain =0;
+                T_sms_buf[1] =0x90;                 //应答命令未执行
+                T_sms_buf[2] =0x02;
+                T_sms_buf[3] =0xEE;
+                T_sms_buf[4] =0xEE;
+                tx_byte_long =8;                    //发送字节数量
+                F_TX_SMS_start =1;
             }
         }
         else{
